@@ -1,0 +1,40 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+    group:
+      dev: local
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 60MB
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+  jackson:
+    time-zone: Asia/Shanghai
+    date-format: yyyy-MM-dd HH:mm:ss
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+
+blog:
+  live2d:
+    # 看板娘 Doro 对话的大模型代理（生产用环境变量覆盖）
+    api-url: ${LIVE2D_API_URL:https://api.hcnsec.cn/}
+    api-key: ${LIVE2D_API_KEY:}  # 本地开发写入环境变量或 application-local.yml（不入库）
+    model: ${LIVE2D_MODEL:auto}
+  # 生产环境必须通过 JWT_SECRET 环境变量覆盖
+  jwt-secret: ${JWT_SECRET:dev-only-secret-change-me-please-0123456789}
+  upload-dir: ${UPLOAD_DIR:./uploads}
+  site-url: ${SITE_URL:https://blog.20260006.xyz}
+  # token 有效期（毫秒），默认 7 天
+  jwt-expire: 604800000

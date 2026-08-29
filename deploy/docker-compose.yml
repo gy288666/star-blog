@@ -1,0 +1,78 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: blog-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: blog
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Shanghai
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - blog-network
+
+  backend:
+    build: ../blog-backend
+    container_name: blog-backend
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: mysql
+      DB_NAME: blog
+      DB_USER: root
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      UPLOAD_DIR: /data/uploads
+      SITE_URL: ${SITE_URL}
+      TZ: Asia/Shanghai
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - uploads_data:/data/uploads
+    networks:
+      - blog-network
+
+  web:
+    build: ../blog-frontend
+    container_name: blog-web
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Shanghai
+      # Nuxt SSR 服务端 /api 代理目标（server/api/[[...path]].ts 使用）
+      NUXT_API_ORIGIN: http://backend:8080
+    depends_on:
+      - backend
+    networks:
+      - blog-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: blog-nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./certbot/www:/var/www/certbot:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+      - backend
+    networks:
+      - blog-network
+
+networks:
+  blog-network:
+
+volumes:
+  mysql_data:
+  uploads_data:

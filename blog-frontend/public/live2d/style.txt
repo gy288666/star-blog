@@ -1,0 +1,232 @@
+<style>
+/* 核心样式 */
+.github-badge {
+display: inline-block;
+border-radius: 4px;
+text-shadow: none;
+font-size: 13.1px;
+color: #fff;
+line-height: 15px;
+margin-bottom: 5px;
+font-family: "Open Sans", sans-serif;
+}
+.github-badge .badge-subject {
+display: inline-block;
+background-color: #4d4d4d;
+padding: 4px 4px 4px 6px;
+border-top-left-radius: 4px;
+border-bottom-left-radius: 4px;
+font-family: "Open Sans", sans-serif;
+}
+.github-badge .badge-value {
+display: inline-block;
+padding: 4px 6px 4px 4px;
+border-top-right-radius: 4px;
+border-bottom-right-radius: 4px;
+font-family: "Open Sans", sans-serif;
+}
+.github-badge-big {
+display: inline-block;
+border-radius: 6px;
+text-shadow: none;
+font-size: 14.1px;
+color: #fff;
+line-height: 18px;
+margin-bottom: 7px;
+}
+.github-badge-big .badge-subject {
+display: inline-block;
+background-color: #4d4d4d;
+padding: 4px 4px 4px 6px;
+border-top-left-radius: 4px;
+border-bottom-left-radius: 4px;
+}
+.github-badge-big .badge-value {
+display: inline-block;
+padding: 4px 6px 4px 4px;
+border-top-right-radius: 4px;
+border-bottom-right-radius: 4px;
+}
+.bg-orange {
+background-color: #ec8a64 !important;
+}
+.bg-red {
+background-color: #cb7574 !important;
+}
+.bg-apricots {
+background-color: #f7c280 !important;
+}
+.bg-casein {
+background-color: #dfe291 !important;
+}
+.bg-shallots {
+background-color: #97c3c6 !important;
+}
+.bg-ogling {
+background-color: #95c7e0 !important;
+}
+.bg-haze {
+background-color: #9aaec7 !important;
+}
+.bg-mountain-terrier {
+background-color: #99a5cd !important;
+}
+</style>
+ <!-- 备案号 -->
+<div class="github-badge-big">
+  <span class="badge-subject"><i class="fa fa-id-card"></i> 备案号 </span>
+  <span class="badge-value bg-orange">
+    <a href="https://beian.miit.gov.cn/" target="_blank" one-link-mark="yes">苏ICP备0000000000号</a>
+    |
+    <a href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=32072202010255" target="_blank" one-link-mark="yes">苏公网安备 00000000000000号</a>
+  </span>
+</div>
+
+<!-- 运行时间 -->
+<div class="github-badge-big">
+  <span class="badge-subject"><i class="fa fa-clock-o"></i> Running Time</span>
+  <span class="badge-value bg-apricots">
+    <span id="blog_running_days" class="odometer odometer-auto-theme"></span> days
+    <span id="blog_running_hours" class="odometer odometer-auto-theme"></span> H
+    <span id="blog_running_mins" class="odometer odometer-auto-theme"></span> M
+    <span id="blog_running_secs" class="odometer odometer-auto-theme"></span> S
+  </span>
+</div>
+
+ <script no-pjax="">
+var blog_running_days = document.getElementById("blog_running_days");
+var blog_running_hours = document.getElementById("blog_running_hours");
+var blog_running_mins = document.getElementById("blog_running_mins");
+var blog_running_secs = document.getElementById("blog_running_secs");
+function refresh_blog_running_time() {
+var time = new Date() - new Date(2026, 0,0, 0, 0, 0);
+var d = parseInt(time / 24 / 60 / 60 / 1000);
+var h = parseInt((time % (24 * 60 * 60 * 1000)) / 60 / 60 / 1000);
+var m = parseInt((time % (60 * 60 * 1000)) / 60 / 1000);
+var s = parseInt((time % (60 * 1000)) / 1000);
+blog_running_days.innerHTML = d;
+blog_running_hours.innerHTML = h;
+blog_running_mins.innerHTML = m;
+blog_running_secs.innerHTML = s;
+}
+refresh_blog_running_time();
+if (typeof bottomTimeIntervalHasSet == "undefined") {
+var bottomTimeIntervalHasSet = true;
+setInterval(function () {
+refresh_blog_running_time();
+}, 500);
+}
+</script>
+
+<script src="https://cubism.live2d.com/sdk-web/cubismcore/live2dcubismcore.min.js"></script>
+<script src="https://lib.baomitu.com/gsap/1.20.2/TweenLite.min.js"></script>
+<script src="https://lib.baomitu.com/pixi.js/5.3.6/pixi.min.js"></script>
+<script src="https://fastly.jsdelivr.net/npm/pixi-live2d-display@0.3.1/dist/cubism4.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // === 1. 创建 Live2D Canvas（放在左下角）===
+    const canvas = document.createElement("canvas");
+    canvas.id = "live2d-canvas";
+    canvas.style.position = "fixed";
+    canvas.style.left = "10px";      // 👈 左侧
+    canvas.style.bottom = "10px";
+    canvas.style.zIndex = "9998";
+    canvas.style.pointerEvents = "auto";
+    document.body.appendChild(canvas);
+
+    // === 2. 创建对话气泡（放在模型右上方）===
+    const speechBubble = document.createElement("div");
+    speechBubble.id = "doro-bubble";
+    speechBubble.style.position = "fixed";
+    speechBubble.style.left = "70px";       // 👈 在模型右侧（10 + 模型宽≈60 → 70 合理）
+    speechBubble.style.bottom = "120px";    // 👈 在模型上方（10 + 模型高≈110 → 120 合理）
+    speechBubble.style.zIndex = "9999";
+    speechBubble.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
+    speechBubble.style.color = "#333";
+    speechBubble.style.padding = "10px 15px";
+    speechBubble.style.borderRadius = "12px";
+    speechBubble.style.fontSize = "14px";
+    speechBubble.style.fontFamily = "sans-serif";
+    speechBubble.style.boxShadow = "0 2px 8px rgba(0,0,0,0.2)";
+    speechBubble.style.maxWidth = "200px";
+    speechBubble.style.display = "none";
+    speechBubble.style.transform = "translateY(10px)";
+    speechBubble.style.transition = "transform 0.2s, opacity 0.2s";
+    document.body.appendChild(speechBubble);
+
+    // === 小尾巴：指向左侧（模型方向）===
+    const style = document.createElement('style');
+    style.textContent = `
+        #doro-bubble::after {
+            content: '';
+            position: absolute;
+            left: -10px;          /* 👈 改为 left，指向左侧 */
+            top: 50%;
+            transform: translateY(-50%);
+            border-width: 10px 10px 10px 0;
+            border-style: solid;
+            border-color: transparent rgba(255, 255, 255, 0.9) transparent transparent;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // === 初始化 PIXI ===
+    const app = new PIXI.Application({
+        view: canvas,
+        transparent: true,
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
+        width: 500,
+        height: 400
+    });
+
+    const interactionPhrases = [
+        "你需要读这篇文章吗？",
+        "你喜欢这个图片吗？",
+        "今天过得怎么样呀？",
+        "要不要和我聊聊天？",
+        "你觉得这个网站好看吗？"
+    ];
+
+    function showBubble(text) {
+        speechBubble.textContent = text;
+        speechBubble.style.display = "block";
+        speechBubble.style.transform = "translateY(0)";
+        setTimeout(() => {
+            speechBubble.style.transform = "translateY(10px)";
+            setTimeout(() => {
+                speechBubble.style.display = "none";
+            }, 200);
+        }, 3000);
+    }
+
+    async function loadModel() {
+        try {
+            const model = await PIXI.live2d.Live2DModel.from('https://8.163.87.253/wp-content/uploads/live2d/dororong/Doro/Doro.model3.json');
+            model.anchor.set(0.5, 0.5);
+            model.position.set(app.screen.width / 2, app.screen.height / 2);
+            model.scale.set(0.25);
+            app.stage.addChild(model);
+            console.log("✅ Live2D 模型 Doro 加载成功！");
+            showBubble("你好呀，我是Doro，欢迎来到Star博客！");
+        } catch (error) {
+            console.error("❌ Live2D 模型加载失败:", error);
+            showBubble("呜...加载失败了 😢");
+        }
+    }
+
+    // === 交互事件 ===
+    canvas.addEventListener('mouseenter', () => {
+        if (Math.random() > 0.5) {
+            showBubble(interactionPhrases[Math.floor(Math.random() * interactionPhrases.length)]);
+        }
+    });
+
+    canvas.addEventListener('click', () => {
+        showBubble(interactionPhrases[Math.floor(Math.random() * interactionPhrases.length)]);
+    });
+
+    loadModel();
+});
+</script>

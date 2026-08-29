@@ -1,0 +1,301 @@
+/* ============================================================
+   全局样式：星空粒子玻璃拟态（明/暗双主题 + 主题色切换）
+   层级：背景壁纸(z -1) → 粒子层(z 0) → 内容玻璃卡片(z 1)
+   设计语言：中性色 + 单一强调色 / 玻璃拟态 / 编辑式排版 / 大留白
+   ============================================================ */
+:root {
+  /* 主题色（可被 JS 覆写） */
+  --primary: #5e72e4;
+  --primary-light: #8a9cf0;
+  --primary-dark: #4a5ad0;
+  --primary-glow: rgba(94, 114, 228, 0.35);
+
+  /* 基础色板 */
+  --bg-page: #eef0f7;
+  --bg-card: rgba(255, 255, 255, 0.68);
+  --bg-card-strong: rgba(255, 255, 255, 0.82);
+  --bg-card-solid: #ffffff;
+  --bg-hover: rgba(94, 114, 228, 0.08);
+  --bg-code: rgba(110, 118, 129, 0.1);
+  --bg-input: rgba(245, 246, 250, 0.8);
+
+  --text-1: #2b3252;
+  --text-2: #4f5a7d;
+  --text-3: #8a92ab;
+  --border-color: rgba(255, 255, 255, 0.65);
+  --divider: rgba(43, 50, 82, 0.08);
+
+  --shadow-card: 0 8px 32px rgba(43, 50, 82, 0.1), 0 1px 2px rgba(43, 50, 82, 0.06);
+  --shadow-card-hover: 0 16px 44px rgba(43, 50, 82, 0.16), 0 2px 6px rgba(43, 50, 82, 0.06);
+  --shadow-nav: 0 4px 24px rgba(43, 50, 82, 0.1);
+
+  --radius-card: 18px;
+  --radius-sm: 10px;
+
+  --success: #2dce89;
+  --warning: #fb6340;
+  --danger: #f5365c;
+
+  /* 代码高亮（亮色，参考 github light） */
+  --hljs-bg: rgba(246, 248, 250, 0.92);
+  --hljs-text: #24292f;
+  --hljs-keyword: #cf222e;
+  --hljs-string: #0a3069;
+  --hljs-number: #0550ae;
+  --hljs-comment: #6e7781;
+  --hljs-title: #8250df;
+  --hljs-attr: #116329;
+  --hljs-built: #8250df;
+
+  /* 中文字体栈（离线，不引外部字体） */
+  --font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC',
+    'WenQuanYi Micro Hei', sans-serif;
+
+  --header-height: 64px;
+}
+
+html.dark {
+  --bg-page: #0e111a;
+  --primary-glow: rgba(138, 156, 240, 0.45);
+  --bg-card: rgba(21, 25, 36, 0.62);
+  --bg-card-strong: rgba(27, 31, 44, 0.85);
+  --bg-card-solid: #1b1f2c;
+  --bg-hover: rgba(138, 156, 240, 0.12);
+  --bg-code: rgba(0, 0, 0, 0.35);
+  --bg-input: rgba(29, 33, 46, 0.8);
+
+  --text-1: #e8eaf4;
+  --text-2: #b0b7cc;
+  --text-3: #6f7891;
+  --border-color: rgba(255, 255, 255, 0.09);
+  --divider: rgba(255, 255, 255, 0.07);
+
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-card-hover: 0 16px 48px rgba(0, 0, 0, 0.55);
+  --shadow-nav: 0 4px 24px rgba(0, 0, 0, 0.4);
+
+  /* 代码高亮（暗色，参考 vs2015） */
+  --hljs-bg: rgba(20, 22, 32, 0.92);
+  --hljs-text: #d4d4d4;
+  --hljs-keyword: #569cd6;
+  --hljs-string: #ce9178;
+  --hljs-number: #b5cea8;
+  --hljs-comment: #6a9955;
+  --hljs-title: #dcdcaa;
+  --hljs-attr: #9cdcfe;
+  --hljs-built: #4ec9b0;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-stack);
+  font-size: 15px;
+  color: var(--text-1);
+  background-color: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.4s ease, color 0.3s ease;
+}
+
+a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--primary-dark); }
+
+img { max-width: 100%; }
+
+::selection { background: var(--primary); color: #fff; }
+
+/* ---------- 通用玻璃卡片 ---------- */
+.card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--border-color);
+  transition: box-shadow 0.3s ease, background-color 0.35s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+.card-hover:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-4px);
+  border-color: var(--primary-glow);
+}
+
+/* 卡片内部标题的呼吸感 */
+.card h1, .card h2, .card h3 { letter-spacing: 0.01em; }
+
+/* ---------- 布局容器 ---------- */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* ---------- 标签 / 徽标 ---------- */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: var(--bg-hover);
+  color: var(--primary);
+  border: 1px solid transparent;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+.tag-chip:hover { background: var(--primary); color: #fff; transform: translateY(-1px); }
+
+/* ---------- 按钮 ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
+  transition: all 0.2s;
+}
+.btn:hover { background: var(--primary-dark); color: #fff; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-plain {
+  background: transparent;
+  color: var(--text-2);
+  border: 1px solid var(--border-color);
+}
+.btn-plain:hover { color: var(--primary); border-color: var(--primary); background: var(--bg-hover); }
+
+/* ---------- 表单 ---------- */
+.input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-1);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(94, 114, 228, 0.15);
+}
+
+/* ---------- 空态 / 加载 ---------- */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-3);
+}
+.empty-state .icon { font-size: 42px; margin-bottom: 12px; }
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--bg-hover);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  margin: 40px auto;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- 代码高亮（自定义 token 配色，亮/暗由变量控制） ---------- */
+.markdown-body pre {
+  background: var(--hljs-bg);
+  border-radius: 10px;
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.markdown-body code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+.markdown-body pre code { background: transparent; padding: 0; color: var(--hljs-text); }
+.markdown-body :not(pre) > code {
+  background: var(--bg-code);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.88em;
+  color: var(--danger);
+}
+.hljs-keyword, .hljs-selector-tag, .hljs-meta { color: var(--hljs-keyword); }
+.hljs-string, .hljs-regexp { color: var(--hljs-string); }
+.hljs-number, .hljs-literal { color: var(--hljs-number); }
+.hljs-comment, .hljs-quote { color: var(--hljs-comment); font-style: italic; }
+.hljs-title, .hljs-name, .hljs-section { color: var(--hljs-title); }
+.hljs-attr, .hljs-attribute, .hljs-variable, .hljs-template-variable { color: var(--hljs-attr); }
+.hljs-built_in, .hljs-type, .hljs-builtin-name { color: var(--hljs-built); }
+.hljs-symbol, .hljs-bullet, .hljs-selector-id, .hljs-selector-class { color: var(--hljs-keyword); }
+
+/* ---------- markdown 正文（编辑式排版节奏） ---------- */
+.markdown-body { line-height: 1.9; color: var(--text-1); word-break: break-word; font-size: 15.5px; }
+.markdown-body h1, .markdown-body h2, .markdown-body h3,
+.markdown-body h4, .markdown-body h5, .markdown-body h6 {
+  margin: 1.6em 0 0.7em;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+.markdown-body h1 { font-size: 1.7em; }
+.markdown-body h2 { font-size: 1.4em; padding-bottom: 10px; border-bottom: 1px solid var(--divider); }
+.markdown-body h3 { font-size: 1.18em; }
+.markdown-body p { margin: 0.9em 0; }
+.markdown-body strong { font-weight: 650; }
+.markdown-body img {
+  border-radius: 10px;
+  cursor: zoom-in;
+  box-shadow: var(--shadow-card);
+}
+.markdown-body blockquote {
+  margin: 1em 0;
+  padding: 10px 18px;
+  border-left: 4px solid var(--primary);
+  background: var(--bg-hover);
+  border-radius: 0 10px 10px 0;
+  color: var(--text-2);
+}
+.markdown-body blockquote p { margin: 0.3em 0; }
+.markdown-body table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  display: block;
+  overflow-x: auto;
+}
+.markdown-body th, .markdown-body td {
+  border: 1px solid var(--divider);
+  padding: 8px 14px;
+}
+.markdown-body th { background: var(--bg-hover); }
+.markdown-body ul, .markdown-body ol { padding-left: 1.6em; }
+.markdown-body hr { border: none; border-top: 1px solid var(--divider); margin: 2em 0; }
+
+/* ---------- 简单动画 ---------- */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.25s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* ---------- 滚动条 ---------- */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--text-3); border-radius: 4px; opacity: 0.4; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------- 无障碍隐藏 ---------- */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  clip: rect(0 0 0 0); overflow: hidden;
+}

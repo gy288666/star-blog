@@ -1,0 +1,39 @@
+# ===== 依赖与构建产物 =====
+node_modules/
+.nuxt/
+.output/
+dist/
+target/
+*.class
+
+# ===== 本地运行时数据（不入库） =====
+_runtime/
+blog-backend/uploads/
+deploy/uploads/
+deploy/ssl/
+deploy/certbot/
+deploy/.env
+
+# ===== 迁移数据（脚本入库，数据不入库） =====
+_migration/
+
+# ===== 私密配置 =====
+application-local.yml
+*.key
+*.pem
+
+# ===== 旧站与备份（仓库只含新项目） =====
+*.wpress
+*.zip
+/argon/
+/wp/
+/homepage/
+/photo/
+/域名/
+/个人博客源码.zip
+
+# ===== 杂项 =====
+*.log
+.DS_Store
+Thumbs.db
+blog-frontend/.env
