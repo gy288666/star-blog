@@ -54,6 +54,15 @@ const toggleParticles = () => {
   particlesEnabled.value = !particlesEnabled.value
   localStorage.setItem('blog_particles_off', particlesEnabled.value ? '0' : '1')
 }
+
+// 登录用户：显示"写文章"与管理入口（仅客户端，避免 SSR 水合不一致）
+const auth = useAuthStore()
+const loggedIn = ref(false)
+onMounted(() => {
+  auth.init()
+  loggedIn.value = auth.isLoggedIn
+  watch(() => auth.token, () => { loggedIn.value = auth.isLoggedIn })
+})
 </script>
 
 <template>
@@ -73,6 +82,11 @@ const toggleParticles = () => {
       </nav>
 
       <div class="header-actions">
+        <ClientOnly>
+          <NuxtLink v-if="loggedIn" to="/admin/posts/new" class="write-btn" title="写新文章">✍️ 写文章</NuxtLink>
+          <NuxtLink v-if="loggedIn" to="/admin" class="icon-btn" title="管理后台">⚙️</NuxtLink>
+          <template #fallback><span style="width:0"></span></template>
+        </ClientOnly>
         <button class="icon-btn" title="搜索 (Ctrl+K)" @click="searchOpen = true">🔍</button>
         <button class="icon-btn" :title="`主题：${theme.mode.value}`" @click="cycleTheme">{{ themeIcon }}</button>
         <button class="icon-btn" :class="{ off: !particlesEnabled }" :title="particlesEnabled ? '关闭粒子背景' : '开启粒子背景'" @click="toggleParticles">✨</button>

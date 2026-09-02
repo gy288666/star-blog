@@ -130,7 +130,7 @@ def main():
     type_map = {"post": 0, "page": 1, "shuoshuo": 2}
     status_map = {"publish": 1, "draft": 0, "private": 0, "pending": 0, "future": 0, "trash": None}
     # 文章封面轮换（原站未设特色图片，使用风景壁纸素材）
-    cover_pool = ["/uploads/bg/cover-3.png", "/uploads/bg/light.png", "/uploads/bg/dark.png"]
+    cover_pool = ["/bg/cover-1.png", "/bg/cover-2.png", "/bg/cover-3.png"]
     n_posts = 0
     used_slugs = set()
     type_counter = {}
@@ -259,8 +259,8 @@ def main():
         "footerText": footer, "icpText": "", "allowComment": allow_comment,
         "siteUrl": "https://blog.20260006.xyz",
         # 页面背景（Argon 的 page_background_* 设置）
-        "pageBackgroundImage": "/uploads/bg/light.png",
-        "pageBackgroundImageDark": "/uploads/bg/dark.png",
+        "pageBackgroundImage": "/bg/page-light.png",
+        "pageBackgroundImageDark": "/bg/page-dark.png",
         "pageBackgroundOpacity": opt("argon_page_background_opacity", "0.6"),
     }
     for k, v in settings.items():

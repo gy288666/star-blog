@@ -3,7 +3,6 @@
 import type { Post } from '~/types'
 
 const props = defineProps<{ postId?: number }>()
-const router = useRouter()
 const { get, post, put } = useApi()
 const { render } = useMarkdown()
 
@@ -69,7 +68,7 @@ const save = async (publish: boolean) => {
       await post('/api/admin/posts', payload)
       ElMessage.success('已创建')
     }
-    router.push('/admin/posts')
+    await navigateTo('/admin/posts')
   } catch (e: any) {
     ElMessage.error(e?.message || '保存失败')
   } finally {

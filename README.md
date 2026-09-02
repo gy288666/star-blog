@@ -36,6 +36,17 @@ cd blog-frontend && npm install && npm run dev # :3000，/api 反代到 :8080
    ```
 3. 媒体文件：把 `deploy/uploads/` 内容复制到服务器的 uploads 卷（或本地 `blog-backend/uploads/`）
 
+### 已部署环境升级（2026-09）
+
+背景图/封面已改为**前端静态托管**（`blog-frontend/public/bg/`，随仓库分发，部署即有）：
+
+```bash
+git pull && docker compose build web && docker compose up -d
+mysql -u<user> -p blog < deploy/sql/2026-09-02-static-bg-covers.sql
+```
+
+前台导航栏登录后会显示「✍️ 写文章」入口，写作发布全流程在 `/admin/posts/new`。
+
 注意：管理员密码不迁移（WP `$P$` 哈希不兼容），用默认 admin/admin123 登录后立即修改。
 
 ## 生产部署（Docker Compose）
