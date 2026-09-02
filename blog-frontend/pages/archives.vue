@@ -18,7 +18,7 @@ const total = computed(() => (years.value || []).reduce((s, y) => s + y.posts.le
 <template>
   <div class="archives-page container">
     <div class="archives-head card">
-      <h1>📅 归档</h1>
+      <h1 class="page-heading"><UiIcon name="calendar" :size="20" /> 归档</h1>
       <p>共 {{ total }} 篇文章</p>
     </div>
     <div v-for="y in years || []" :key="y.year" class="year-group card">

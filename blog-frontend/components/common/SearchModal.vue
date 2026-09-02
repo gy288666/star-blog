@@ -36,7 +36,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onEsc))
       <div v-if="open" class="search-mask" @click.self="close">
         <div class="search-modal card">
           <div class="search-input-row">
-            <span class="search-icon">🔍</span>
+            <span class="search-icon"><UiIcon name="search" :size="16" /></span>
             <input
               ref="inputRef"
               v-model="keyword"

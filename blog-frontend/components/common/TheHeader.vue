@@ -5,11 +5,11 @@ const theme = useTheme()
 const route = useRoute()
 
 const navItems = [
-  { path: '/', label: '首页', icon: '🏠' },
-  { path: '/archives', label: '归档', icon: '📅' },
-  { path: '/shuoshuo', label: '说说', icon: '💬' },
-  { path: '/friend', label: '友链', icon: '🔗' },
-  { path: '/page/about', label: '关于', icon: '🌟' }
+  { path: '/', label: '首页', icon: 'home' },
+  { path: '/archives', label: '归档', icon: 'calendar' },
+  { path: '/shuoshuo', label: '说说', icon: 'chat' },
+  { path: '/friend', label: '友链', icon: 'link' },
+  { path: '/page/about', label: '关于', icon: 'star' }
 ]
 
 const scrolled = ref(false)
@@ -46,7 +46,7 @@ const cycleTheme = () => {
   const next = order[(order.indexOf(theme.mode.value) + 1) % order.length]
   theme.setMode(next)
 }
-const themeIcon = computed(() => theme.mode.value === 'dark' ? '🌙' : theme.mode.value === 'light' ? '☀️' : '🌗')
+const themeIcon = computed(() => theme.mode.value === 'dark' ? 'moon' : theme.mode.value === 'light' ? 'sun' : 'sparkles')
 
 // 粒子背景开关（与 ParticleBackground 通过 useState 共享）
 const particlesEnabled = useState('particles-enabled', () => true)
@@ -76,21 +76,21 @@ onMounted(() => {
       <nav class="desktop-nav">
         <NuxtLink v-for="item in navItems" :key="item.path" :to="item.path"
           class="nav-link" :class="{ active: isActive(item.path) }">
-          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-icon"><UiIcon :name="item.icon" :size="15" /></span>
           <span class="nav-label">{{ item.label }}</span>
         </NuxtLink>
       </nav>
 
       <div class="header-actions">
         <ClientOnly>
-          <NuxtLink v-if="loggedIn" to="/admin/posts/new" class="write-btn" title="写新文章">✍️ 写文章</NuxtLink>
-          <NuxtLink v-if="loggedIn" to="/admin" class="icon-btn" title="管理后台">⚙️</NuxtLink>
+          <NuxtLink v-if="loggedIn" to="/admin/posts/new" class="write-btn" title="写新文章"><UiIcon name="pen" :size="14" /> 写文章</NuxtLink>
+          <NuxtLink v-if="loggedIn" to="/admin" class="icon-btn" title="管理后台"><UiIcon name="gear" :size="17" /></NuxtLink>
           <template #fallback><span style="width:0"></span></template>
         </ClientOnly>
-        <button class="icon-btn" title="搜索 (Ctrl+K)" @click="searchOpen = true">🔍</button>
-        <button class="icon-btn" :title="`主题：${theme.mode.value}`" @click="cycleTheme">{{ themeIcon }}</button>
-        <button class="icon-btn" :class="{ off: !particlesEnabled }" :title="particlesEnabled ? '关闭粒子背景' : '开启粒子背景'" @click="toggleParticles">✨</button>
-        <button class="icon-btn menu-toggle" @click="drawerOpen = !drawerOpen">☰</button>
+        <button class="icon-btn" title="搜索 (Ctrl+K)" @click="searchOpen = true"><UiIcon name="search" :size="17" /></button>
+        <button class="icon-btn" :title="`主题：${theme.mode.value}`" @click="cycleTheme"><UiIcon :name="themeIcon" :size="17" /></button>
+        <button class="icon-btn" :class="{ off: !particlesEnabled }" :title="particlesEnabled ? '关闭粒子背景' : '开启粒子背景'" @click="toggleParticles"><UiIcon name="sparkles" :size="17" /></button>
+        <button class="icon-btn menu-toggle" @click="drawerOpen = !drawerOpen"><UiIcon name="menu" :size="18" /></button>
       </div>
     </div>
 
@@ -99,7 +99,7 @@ onMounted(() => {
       <nav v-if="drawerOpen" class="mobile-drawer">
         <NuxtLink v-for="item in navItems" :key="item.path" :to="item.path"
           class="drawer-link" :class="{ active: isActive(item.path) }">
-          <span class="nav-icon">{{ item.icon }}</span> {{ item.label }}
+          <UiIcon :name="item.icon" :size="15" /> {{ item.label }}
         </NuxtLink>
       </nav>
     </Transition>

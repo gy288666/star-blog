@@ -37,7 +37,7 @@ useHead(() => ({ title: `分类：${category.value?.name || slug}` }))
 <template>
   <div class="archive-page container">
     <div class="archive-head card">
-      <h1>🗂️ {{ category?.name || slug }}</h1>
+      <h1 class="page-heading"><UiIcon name="list" :size="20" /> {{ category?.name || slug }}</h1>
       <p v-if="category?.description">{{ category.description }}</p>
       <p class="count">共 {{ data?.total || 0 }} 篇文章</p>
     </div>

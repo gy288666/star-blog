@@ -36,7 +36,7 @@ const onPageChange = (p: number) => {
       <PostCard v-for="p in posts" :key="p.id" :post="p" />
     </div>
     <div v-else class="empty card">
-      <p>😐 暂无文章</p>
+      <p>还没有文章，去后台写第一篇吧</p>
     </div>
     <CommonPagination
       v-if="total > 10"

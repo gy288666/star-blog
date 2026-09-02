@@ -37,7 +37,7 @@ useHead(() => ({ title: `标签：${tag.value?.name || slug}` }))
 <template>
   <div class="archive-page container">
     <div class="archive-head card">
-      <h1>🏷️ {{ tag?.name || slug }}</h1>
+      <h1 class="page-heading"><UiIcon name="star" :size="20" /> {{ tag?.name || slug }}</h1>
       <p class="count">共 {{ data?.total || 0 }} 篇文章</p>
     </div>
     <div v-if="data?.records?.length" class="post-list">

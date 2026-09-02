@@ -41,7 +41,7 @@ const submit = async () => {
 <template>
   <div class="login-page">
     <div class="login-card card">
-      <h1 class="login-title">📝 博客管理</h1>
+      <h1 class="login-title"><UiIcon name="pen" :size="20" /> 博客管理</h1>
       <form @submit.prevent="submit">
         <div class="form-item">
           <label>用户名</label>

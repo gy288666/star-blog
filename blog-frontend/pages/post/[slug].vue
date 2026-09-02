@@ -83,7 +83,7 @@ const contentHtml = computed(() => {
 <template>
   <div class="post-page container">
     <div v-if="loadError" class="empty card">
-      <p>😕 文章不存在或加载失败</p>
+      <p>文章不存在或加载失败</p>
       <NuxtLink to="/" class="back-link">← 返回首页</NuxtLink>
     </div>
 
@@ -100,7 +100,7 @@ const contentHtml = computed(() => {
 
         <!-- 密码保护 -->
         <div v-if="passwordRequired" class="password-gate">
-          <p>🔒 本文已被密码保护，请输入密码查看：</p>
+          <p><UiIcon name="lock" :size="15" /> 本文已被密码保护，请输入密码查看：</p>
           <div class="pwd-form">
             <input v-model="password" type="password" placeholder="文章密码" @keyup.enter="retryWithPassword" />
             <button class="btn-primary" @click="retryWithPassword">查看</button>
@@ -119,7 +119,7 @@ const contentHtml = computed(() => {
       <RelatedPosts :post-id="post.id" />
 
       <section v-if="post.allowComment !== 0" class="comments-section card">
-        <h2 class="section-title">💬 评论（{{ commentTotal }}）</h2>
+        <h2 class="section-title"><UiIcon name="chat" :size="17" /> 评论（{{ commentTotal }}）</h2>
         <CommentForm
           v-if="replyTarget"
           :key="`reply-${replyTarget.id}`"

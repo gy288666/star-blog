@@ -11,13 +11,13 @@ const trend = ref<{ date: string; count: number }[]>([])
 const topPosts = ref<{ id: number; title: string; views: number }[]>([])
 
 const cards = computed(() => [
-  { label: '文章', value: summary.value.postCount ?? '-', icon: '📝' },
-  { label: '说说', value: summary.value.shuoshuoCount ?? '-', icon: '🙋' },
-  { label: '评论', value: summary.value.commentCount ?? '-', icon: '💬' },
-  { label: '待审评论', value: summary.value.pendingComments ?? '-', icon: '⏳' },
-  { label: '总阅读', value: summary.value.viewsSum ?? '-', icon: '👁' },
-  { label: '友链', value: summary.value.friendCount ?? '-', icon: '🔗' },
-  { label: '运行天数', value: summary.value.runDays ?? '-', icon: '⏱' }
+  { label: '文章', value: summary.value.postCount ?? '-', icon: 'doc' },
+  { label: '说说', value: summary.value.shuoshuoCount ?? '-', icon: 'quote' },
+  { label: '评论', value: summary.value.commentCount ?? '-', icon: 'chat' },
+  { label: '待审评论', value: summary.value.pendingComments ?? '-', icon: 'hourglass' },
+  { label: '总阅读', value: summary.value.viewsSum ?? '-', icon: 'eye' },
+  { label: '友链', value: summary.value.friendCount ?? '-', icon: 'link' },
+  { label: '运行天数', value: summary.value.runDays ?? '-', icon: 'clock' }
 ])
 
 const chartEl = ref<HTMLDivElement | null>(null)
@@ -54,7 +54,7 @@ onUnmounted(() => { window.removeEventListener('resize', resizeChart); chart?.di
   <div class="dashboard">
     <div class="stat-cards">
       <div v-for="c in cards" :key="c.label" class="stat-card card">
-        <span class="stat-icon">{{ c.icon }}</span>
+        <span class="stat-icon"><UiIcon :name="c.icon" :size="24" /></span>
         <div>
           <div class="stat-value">{{ c.value }}</div>
           <div class="stat-label">{{ c.label }}</div>
@@ -63,11 +63,11 @@ onUnmounted(() => { window.removeEventListener('resize', resizeChart); chart?.di
     </div>
     <div class="dash-grid">
       <div class="card chart-card">
-        <h3>📈 近 14 天访问趋势</h3>
+        <h3><UiIcon name="trend" :size="16" /> 近 14 天访问趋势</h3>
         <div ref="chartEl" class="chart"></div>
       </div>
       <div class="card top-card">
-        <h3>🔥 热门文章</h3>
+        <h3><UiIcon name="fire" :size="16" /> 热门文章</h3>
         <ul class="top-list">
           <li v-for="(p, i) in topPosts" :key="p.id">
             <span class="rank" :class="`rank-${i + 1}`">{{ i + 1 }}</span>

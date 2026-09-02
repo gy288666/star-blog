@@ -9,7 +9,7 @@ useHead({ title: '编辑文章' })
 
 <template>
   <div>
-    <h2 class="page-h">✏️ 编辑</h2>
+    <h2 class="page-h"><UiIcon name="pen" :size="18" /> 编辑</h2>
     <AdminPostEditor :post-id="postId" />
   </div>
 </template>

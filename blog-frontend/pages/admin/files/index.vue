@@ -52,7 +52,7 @@ const fmtSize = (s: number) => {
   <div>
     <div class="toolbar">
       <el-upload :show-file-list="false" :http-request="onUpload" multiple>
-        <el-button type="primary">⬆ 上传文件</el-button>
+        <el-button type="primary"><UiIcon name="upload" :size="14" style="vertical-align:-2px;margin-right:4px" /> 上传文件</el-button>
       </el-upload>
       <span class="tip">支持 jpg/png/gif/webp/svg/mp4/mp3/pdf/zip/txt/md，单文件 50MB 以内</span>
     </div>
@@ -61,7 +61,7 @@ const fmtSize = (s: number) => {
       <el-table-column label="预览" width="80">
         <template #default="{ row }">
           <img v-if="/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(row.name)" :src="row.url" class="thumb" loading="lazy" />
-          <span v-else>📄</span>
+          <span v-else><UiIcon name="file" :size="22" /></span>
         </template>
       </el-table-column>
       <el-table-column prop="name" label="文件名" min-width="240" />

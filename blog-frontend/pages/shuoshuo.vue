@@ -75,13 +75,13 @@ const { render } = useMarkdown()
 <template>
   <div class="shuoshuo-page container">
     <div class="shuoshuo-head card">
-      <h1>🙋 说说</h1>
+      <h1 class="page-heading"><UiIcon name="quote" :size="20" /> 说说</h1>
       <p>碎碎念，记录日常</p>
     </div>
 
     <div v-for="p in list" :key="p.id" class="shuoshuo-card card">
       <div class="ss-header">
-        <span class="ss-avatar">🙋</span>
+        <span class="ss-avatar"><UiIcon name="user" :size="20" /></span>
         <div>
           <div class="ss-author">{{ p.authorNickname || '站长' }}</div>
           <div class="ss-time">{{ p.publishedAt || p.createTime }}</div>
@@ -90,9 +90,9 @@ const { render } = useMarkdown()
       <div class="ss-content" v-html="render(p.contentHtml || p.contentMd)"></div>
       <div class="ss-actions">
         <button class="ss-action" :class="{ liked: liked[p.id] }" @click="like(p)">
-          ❤️ {{ p.upvotes || 0 }}
+          <UiIcon name="heart" :size="14" /> {{ p.upvotes || 0 }}
         </button>
-        <button class="ss-action" @click="toggleComments(p)">💬 {{ p.commentCount || 0 }}</button>
+        <button class="ss-action" @click="toggleComments(p)"><UiIcon name="chat" :size="14" /> {{ p.commentCount || 0 }}</button>
       </div>
       <div v-if="openComments[p.id]" class="ss-comments">
         <CommentForm :post-id="p.id" @success="() => { delete commentsBy[p.id]; toggleComments(p); openComments[p.id] = true }" />

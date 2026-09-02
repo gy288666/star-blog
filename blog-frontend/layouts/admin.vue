@@ -10,16 +10,16 @@ const collapse = ref(false)
 const activeMenu = computed(() => route.path)
 
 const menuItems = [
-  { path: '/admin', label: '仪表盘', icon: '📊' },
-  { path: '/admin/posts', label: '文章管理', icon: '📝' },
-  { path: '/admin/comments', label: '评论管理', icon: '💬' },
-  { path: '/admin/shuoshuos', label: '说说管理', icon: '🙋' },
-  { path: '/admin/categories', label: '分类管理', icon: '🗂️' },
-  { path: '/admin/tags', label: '标签管理', icon: '🏷️' },
-  { path: '/admin/friends', label: '友链管理', icon: '🔗' },
-  { path: '/admin/banners', label: '横幅管理', icon: '🖼️' },
-  { path: '/admin/files', label: '文件管理', icon: '📁' },
-  { path: '/admin/settings', label: '站点设置', icon: '⚙️' }
+  { path: '/admin', label: '仪表盘', icon: 'grid' },
+  { path: '/admin/posts', label: '文章管理', icon: 'pen' },
+  { path: '/admin/comments', label: '评论管理', icon: 'chat' },
+  { path: '/admin/shuoshuos', label: '说说管理', icon: 'quote' },
+  { path: '/admin/categories', label: '分类管理', icon: 'list' },
+  { path: '/admin/tags', label: '标签管理', icon: 'star' },
+  { path: '/admin/friends', label: '友链管理', icon: 'link' },
+  { path: '/admin/banners', label: '横幅管理', icon: 'image' },
+  { path: '/admin/files', label: '文件管理', icon: 'folder' },
+  { path: '/admin/settings', label: '站点设置', icon: 'gear' }
 ]
 
 const handleLogout = () => {
@@ -43,7 +43,7 @@ const handleLogout = () => {
           class="menu-item"
           :class="{ active: activeMenu === item.path || (item.path !== '/admin' && activeMenu.startsWith(item.path)) }"
         >
-          <span class="menu-icon">{{ item.icon }}</span>
+          <span class="menu-icon"><UiIcon :name="item.icon" :size="16" /></span>
           <span v-if="!collapse" class="menu-label">{{ item.label }}</span>
         </NuxtLink>
       </nav>
@@ -51,11 +51,11 @@ const handleLogout = () => {
 
     <div class="admin-body">
       <header class="admin-topbar">
-        <button class="topbar-btn" @click="collapse = !collapse">☰</button>
+        <button class="topbar-btn" @click="collapse = !collapse"><UiIcon name="menu" :size="17" /></button>
         <div class="topbar-right">
-          <NuxtLink to="/" target="_blank" class="topbar-btn" title="访问前台">🌐</NuxtLink>
+          <NuxtLink to="/" target="_blank" class="topbar-btn" title="访问前台"><UiIcon name="home" :size="16" /></NuxtLink>
           <span class="topbar-user">{{ auth.user?.nickname || auth.user?.username || '管理员' }}</span>
-          <button class="topbar-btn" @click="handleLogout">退出</button>
+          <button class="topbar-btn topbar-logout" @click="handleLogout"><UiIcon name="logout" :size="15" /> 退出</button>
         </div>
       </header>
       <main class="admin-main">

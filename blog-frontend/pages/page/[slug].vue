@@ -40,14 +40,14 @@ await loadComments()
 
 <template>
   <div class="page-view container">
-    <div v-if="!post" class="empty card"><p>😕 页面不存在</p></div>
+    <div v-if="!post" class="empty card"><p>页面不存在</p></div>
     <template v-else>
       <article class="single-page card">
         <h1 class="page-title">{{ post.title }}</h1>
         <div class="page-content markdown-body" v-html="contentHtml"></div>
       </article>
       <section v-if="post.allowComment !== 0" class="comments-section card">
-        <h2 class="section-title">💬 留言（{{ commentTotal }}）</h2>
+        <h2 class="section-title"><UiIcon name="chat" :size="17" /> 留言（{{ commentTotal }}）</h2>
         <CommentForm :post-id="post.id" @success="loadComments" />
         <div v-if="comments.length" class="comment-list">
           <CommentItem v-for="c in comments" :key="c.id" :comment="c" />

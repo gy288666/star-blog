@@ -7,7 +7,7 @@ useHead({ title: '写文章' })
 
 <template>
   <div>
-    <h2 class="page-h">✍️ 写文章</h2>
+    <h2 class="page-h"><UiIcon name="pen" :size="18" /> 写文章</h2>
     <AdminPostEditor />
   </div>
 </template>

@@ -17,7 +17,7 @@ useHead({ title: '友情链接' })
 <template>
   <div class="friend-page container">
     <div class="friend-head card">
-      <h1>🔗 友情链接</h1>
+      <h1 class="page-heading"><UiIcon name="link" :size="20" /> 友情链接</h1>
       <p>共 {{ friends?.length || 0 }} 位朋友</p>
     </div>
     <div v-if="friends?.length" class="friend-grid">

@@ -53,6 +53,15 @@
     'WenQuanYi Micro Hei', sans-serif;
 
   --header-height: 64px;
+
+  /* 字阶（5 档节奏，大标题收紧字距） */
+  --text-xs: 12px;
+  --text-sm: 13.5px;
+  --text-base: 15px;
+  --text-md: 17px;
+  --text-lg: 22px;
+  --text-xl: 28px;
+  --text-display: 44px;
 }
 
 html.dark {
@@ -105,6 +114,12 @@ body {
 a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
 a:hover { color: var(--primary-dark); }
 
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 img { max-width: 100%; }
 
 ::selection { background: var(--primary); color: #fff; }
@@ -127,6 +142,17 @@ img { max-width: 100%; }
 
 /* 卡片内部标题的呼吸感 */
 .card h1, .card h2, .card h3 { letter-spacing: 0.01em; }
+
+/* 编辑式页面标题（归档/说说/友链等区块头） */
+.page-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--text-lg);
+  letter-spacing: -0.01em;
+}
+.page-heading .ui-icon { color: var(--primary); }
 
 /* ---------- 布局容器 ---------- */
 .container {
@@ -165,8 +191,9 @@ img { max-width: 100%; }
   cursor: pointer;
   background: var(--primary);
   color: #fff;
-  transition: all 0.2s;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
 }
+.btn:hover { box-shadow: 0 4px 14px var(--primary-glow); }
 .btn:hover { background: var(--primary-dark); color: #fff; }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .btn-plain {

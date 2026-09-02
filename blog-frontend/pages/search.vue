@@ -26,7 +26,7 @@ useHead(() => ({ title: `搜索：${q.value || ''}` }))
 <template>
   <div class="search-page container">
     <div class="search-head card">
-      <h1>🔍 搜索「{{ q }}」</h1>
+      <h1 class="page-heading"><UiIcon name="search" :size="20" /> 搜索「{{ q }}」</h1>
       <p>找到 {{ data?.total || 0 }} 条结果</p>
     </div>
     <div v-if="data?.records?.length" class="post-list">
