@@ -36,6 +36,12 @@ public class BlogPost {
 
     private Long authorId;
 
+    /** 游客发布标识（游客说说） */
+    private String guestKey;
+
+    /** 游客昵称 */
+    private String guestName;
+
     private Integer views;
 
     private Integer upvotes;

@@ -55,6 +55,8 @@ public class SecurityConfig {
                         .requestMatchers("PUT", "/api/posts/*/views").permitAll()
                         .requestMatchers("POST", "/api/visit").permitAll()
                         .requestMatchers("POST", "/api/live2d/chat").permitAll()
+                        .requestMatchers("POST", "/api/shuoshuos").permitAll()
+                        .requestMatchers("DELETE", "/api/shuoshuos/*").permitAll()
                         // 上传文件静态访问
                         .requestMatchers("/uploads/**").permitAll()
                         .anyRequest().authenticated())

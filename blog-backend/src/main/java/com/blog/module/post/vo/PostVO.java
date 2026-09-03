@@ -30,6 +30,12 @@ public class PostVO {
     private String contentHtml;
     /** 密码保护的原文密码仅管理端返回 */
     private String password;
+    /** 游客说说的发布者昵称 */
+    private String guestName;
+    /** 游客发布标识（匹配 X-Guest-Id 判断是否本人，仅说说场景内部使用） */
+    private String guestKey;
+    /** 当前访客是否为发布人（说说场景，按 X-Guest-Id 匹配） */
+    private Boolean mine;
     private List<IdName> categories;
     private List<IdName> tags;
     private List<Long> categoryIds;
@@ -59,6 +65,8 @@ public class PostVO {
         vo.setContentMd(p.getContentMd());
         vo.setContentHtml(p.getContentHtml());
         vo.setPassword(p.getPassword());
+        vo.setGuestName(p.getGuestName());
+        vo.setGuestKey(p.getGuestKey());
         return vo;
     }
 

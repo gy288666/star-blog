@@ -53,6 +53,8 @@ export interface Post {
   contentHtml?: string
   categories?: Category[]
   tags?: Tag[]
+  guestName?: string
+  mine?: boolean
 }
 
 export interface PostDetail extends Post {

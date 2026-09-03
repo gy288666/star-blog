@@ -3,7 +3,9 @@ package com.blog.module.post.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.blog.common.constant.Constants;
 import com.blog.common.exception.BizException;
+import com.blog.module.post.entity.BlogCoverHistory;
 import com.blog.module.post.entity.BlogPost;
+import com.blog.module.post.mapper.CoverHistoryMapper;
 import com.blog.module.post.mapper.PostMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -48,15 +51,17 @@ public class CoverRefreshService {
     private static final long MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
     private final PostMapper postMapper;
+    private final CoverHistoryMapper coverHistoryMapper;
     private final HttpClient http;
     private final boolean enabled;
     private final String uploadDir;
     private final Object downloadLock = new Object();
 
-    public CoverRefreshService(PostMapper postMapper,
+    public CoverRefreshService(PostMapper postMapper, CoverHistoryMapper coverHistoryMapper,
                                @Value("${blog.cover-refresh.enabled:true}") boolean enabled,
                                @Value("${blog.upload-dir:./uploads}") String uploadDir) {
         this.postMapper = postMapper;
+        this.coverHistoryMapper = coverHistoryMapper;
         this.enabled = enabled;
         this.uploadDir = uploadDir;
         this.http = HttpClient.newBuilder()
@@ -79,7 +84,7 @@ public class CoverRefreshService {
         }
     }
 
-    /** 手动触发（管理端按钮），返回更新数量。 */
+    /** 手动触发（管理端按钮），返回更新数量。封面历史去重：全局不重复，池子耗尽才重置历史。 */
     public int refresh() {
         List<String> pool = fetchCandidateIds();
         if (pool.size() < 3) {
@@ -88,10 +93,12 @@ public class CoverRefreshService {
         List<BlogPost> posts = postMapper.selectList(new LambdaQueryWrapper<BlogPost>()
                 .eq(BlogPost::getType, Constants.TYPE_ARTICLE)
                 .eq(BlogPost::getStatus, Constants.STATUS_PUBLISHED));
+        pool = excludeUsed(pool, posts);
         Collections.shuffle(pool);
         // 本轮新封面先落到临时目录，全部成功后统一切换并清理上一轮文件
         Path tmpDir = coversDir().resolveSibling("covers-tmp-" + UUID.randomUUID().toString().substring(0, 8));
         List<String> localCovers = new ArrayList<>();
+        List<String> usedIdsThisRound = new ArrayList<>();
         int cursor = 0;
         try {
             for (BlogPost p : posts) {
@@ -107,6 +114,7 @@ public class CoverRefreshService {
                         Path saved = downloadTo(remote, tmpDir);
                         // 临时目录随后整体转正为 covers/，故最终 URL 直接用文件名
                         localCovers.add("/uploads/covers/" + saved.getFileName());
+                        usedIdsThisRound.add(id);
                         break;
                     } catch (Exception e) {
                         log.warn("封面下载失败，换下一张: {}", e.getMessage());
@@ -145,7 +153,46 @@ public class CoverRefreshService {
                 throw new BizException(500, "封面目录切换失败: " + e.getMessage());
             }
         }
+        // 记录本轮用掉的壁纸 id（保证全局不重复）
+        recordHistory(usedIdsThisRound);
         return updated;
+    }
+
+    /** 排除历史用过与当前在用的壁纸 id；若可用不足则清空历史重来。 */
+    private List<String> excludeUsed(List<String> pool, List<BlogPost> posts) {
+        java.util.Set<String> used = new java.util.HashSet<>();
+        for (BlogCoverHistory h : coverHistoryMapper.selectList(null)) {
+            used.add(h.getFileId());
+        }
+        for (BlogPost p : posts) {
+            if (p.getCover() != null) {
+                Matcher m = ID_PATTERN.matcher(p.getCover());
+                if (m.find()) {
+                    used.add(m.group(1));
+                }
+            }
+        }
+        List<String> fresh = pool.stream().filter(id -> !used.contains(id)).collect(Collectors.toList());
+        if (fresh.size() < Math.max(3, posts.size() / 2)) {
+            // 池子基本耗尽：重置历史，全部候选重新可用
+            coverHistoryMapper.delete(null);
+            fresh = new ArrayList<>(pool);
+            log.info("壁纸历史池已耗尽，重置去重历史（{} 个候选重新可用）", fresh.size());
+        }
+        return fresh;
+    }
+
+    /** 分配封面时同步记录本轮使用的 id。 */
+    private void recordHistory(List<String> ids) {
+        for (String id : ids) {
+            try {
+                BlogCoverHistory h = new BlogCoverHistory();
+                h.setFileId(id);
+                coverHistoryMapper.insert(h);
+            } catch (Exception e) {
+                log.warn("封面历史写入失败（不影响刷新）: {}", e.getMessage());
+            }
+        }
     }
 
     /** 下载远程图片到 dir，返回保存的文件路径。校验图片类型与大小。 */
