@@ -30,6 +30,8 @@ cd blog-frontend && npm install && npm run dev   # :3000，/api 自动代理到 
 
 **看板娘对话**需配置大模型（环境变量 `LIVE2D_API_URL` / `LIVE2D_API_KEY` / `LIVE2D_MODEL`），任何 OpenAI 兼容接口均可，key 只存后端不暴露给浏览器。
 
+**文章封面**默认每周一 03:00 从哲风壁纸（haowallpaper.com）随机刷新一轮；管理端可手动触发（`POST /api/admin/covers/refresh`）。不需要时设环境变量 `COVER_REFRESH_ENABLED=false` 关闭。背景壁纸（明暗两套）内置在前端 `blog-frontend/public/bg/`，部署即有。
+
 ---
 
 # 服务器部署指南（零基础版）
