@@ -94,18 +94,29 @@ public class CoverRefreshService {
                 .eq(BlogPost::getType, Constants.TYPE_ARTICLE)
                 .eq(BlogPost::getStatus, Constants.STATUS_PUBLISHED));
         pool = excludeUsed(pool, posts);
+        if (pool.size() < posts.size()) {
+            // 宁可保留旧封面也不出现重复：候选不足以让每篇文章各得一张不同的
+            throw new IllegalStateException("去重后可用壁纸不足（" + pool.size() + "/" + posts.size() + "），保留旧封面");
+        }
         Collections.shuffle(pool);
         // 本轮新封面先落到临时目录，全部成功后统一切换并清理上一轮文件
         Path tmpDir = coversDir().resolveSibling("covers-tmp-" + UUID.randomUUID().toString().substring(0, 8));
         List<String> localCovers = new ArrayList<>();
         List<String> usedIdsThisRound = new ArrayList<>();
+        java.util.Set<String> assignedThisRound = new java.util.HashSet<>();
         int cursor = 0;
         try {
             for (BlogPost p : posts) {
                 String current = p.getCover();
                 for (int attempt = 0; attempt < 5; attempt++) {
-                    String id = pool.get(cursor % pool.size());
-                    cursor++;
+                    if (cursor >= pool.size()) {
+                        break; // 池子取尽，绝不回绕重复
+                    }
+                    String id = pool.get(cursor++);
+                    // 轮内严格去重：同一张壁纸本轮绝不分配两次
+                    if (!assignedThisRound.add(id)) {
+                        continue;
+                    }
                     String remote = String.format(COVER_URL_FMT, id);
                     if (remote.equals(current)) {
                         continue;
@@ -121,11 +132,11 @@ public class CoverRefreshService {
                     }
                 }
             }
-            if (localCovers.size() < posts.size() / 2) {
-                throw new IllegalStateException("可用封面过少（" + localCovers.size() + "/" + posts.size() + "），放弃本轮");
+            if (localCovers.size() < posts.size()) {
+                throw new IllegalStateException("可用封面不足（" + localCovers.size() + "/" + posts.size() + "），放弃本轮");
             }
         } finally {
-            if (localCovers.size() < posts.size() / 2) {
+            if (localCovers.size() < posts.size()) {
                 deleteQuietly(tmpDir);
             }
         }
@@ -173,11 +184,24 @@ public class CoverRefreshService {
             }
         }
         List<String> fresh = pool.stream().filter(id -> !used.contains(id)).collect(Collectors.toList());
-        if (fresh.size() < Math.max(3, posts.size() / 2)) {
-            // 池子基本耗尽：重置历史，全部候选重新可用
+        if (fresh.size() < posts.size()) {
+            // 历史把池子基本用完：重置历史，但仍排除当前在用的 12 张，保证与上一轮不重复
             coverHistoryMapper.delete(null);
-            fresh = new ArrayList<>(pool);
-            log.info("壁纸历史池已耗尽，重置去重历史（{} 个候选重新可用）", fresh.size());
+            java.util.Set<String> currentIds = new java.util.HashSet<>();
+            for (BlogPost p : posts) {
+                if (p.getCover() != null) {
+                    Matcher m = ID_PATTERN.matcher(p.getCover());
+                    if (m.find()) {
+                        currentIds.add(m.group(1));
+                    }
+                }
+            }
+            fresh = pool.stream().filter(id -> !currentIds.contains(id)).collect(Collectors.toList());
+            log.info("壁纸历史池已耗尽，重置历史（当前 {} 张封面保持不重复，重置后可用 {} 个）",
+                    currentIds.size(), fresh.size());
+            if (fresh.size() < posts.size()) {
+                throw new IllegalStateException("壁纸池耗尽且无法避开当前封面（候选 " + pool.size() + "），保留旧封面");
+            }
         }
         return fresh;
     }
@@ -261,18 +285,29 @@ public class CoverRefreshService {
         }
     }
 
-    /** 抓取站点首页 + 一个详情页，汇总候选壁纸 id。 */
+    /** 抓取站点首页 + 前几个详情页，汇总候选壁纸 id（目标 40+，支撑多轮不重复）。 */
     private List<String> fetchCandidateIds() {
         List<String> ids = new ArrayList<>();
         String home = fetch(SITE + "/");
         collectIds(home, ids);
-        if (ids.size() < 8 && home != null) {
+        if (home != null) {
+            // 详情页里有该壁纸 previewFileImg 与相关推荐，深入抓取扩大池子
+            List<String> lookLinks = new ArrayList<>();
             Matcher m = Pattern.compile("/homeViewLook/(\\d{15,20})").matcher(home);
-            if (m.find()) {
-                String detail = fetch(SITE + "/homeViewLook/" + m.group(1));
-                collectIds(detail, ids);
+            while (m.find() && lookLinks.size() < 4) {
+                String link = SITE + "/homeViewLook/" + m.group(1);
+                if (!lookLinks.contains(link)) {
+                    lookLinks.add(link);
+                }
+            }
+            for (String link : lookLinks) {
+                if (ids.size() >= 40) {
+                    break;
+                }
+                collectIds(fetch(link), ids);
             }
         }
+        log.info("壁纸候选池大小: {}", ids.size());
         return ids;
     }
 
