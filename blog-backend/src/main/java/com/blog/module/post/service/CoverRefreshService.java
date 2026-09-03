@@ -84,7 +84,7 @@ public class CoverRefreshService {
         }
     }
 
-    /** 手动触发（管理端按钮），返回更新数量。封面历史去重：全局不重复，池子耗尽才重置历史。 */
+    /** 手动触发（管理端按钮），返回更新数量。全局不重复；候选不足时自动重置历史（仍排除当前封面）重试一轮。 */
     public int refresh() {
         List<String> pool = fetchCandidateIds();
         if (pool.size() < 3) {
@@ -93,12 +93,29 @@ public class CoverRefreshService {
         List<BlogPost> posts = postMapper.selectList(new LambdaQueryWrapper<BlogPost>()
                 .eq(BlogPost::getType, Constants.TYPE_ARTICLE)
                 .eq(BlogPost::getStatus, Constants.STATUS_PUBLISHED));
-        pool = excludeUsed(pool, posts);
-        if (pool.size() < posts.size()) {
-            // 宁可保留旧封面也不出现重复：候选不足以让每篇文章各得一张不同的
-            throw new IllegalStateException("去重后可用壁纸不足（" + pool.size() + "/" + posts.size() + "），保留旧封面");
+
+        RefreshOutcome first = tryRefresh(pool, posts, false);
+        if (first.updated < posts.size() && !first.historyWasReset) {
+            // 大量候选是视频/失效时，历史会把好图"饿死"：重置历史（排除当前封面）再补一轮
+            log.info("首轮仅成功 {}/{}，重置封面历史后重试", first.updated, posts.size());
+            first = tryRefresh(pool, posts, true);
         }
-        Collections.shuffle(pool);
+        if (first.updated < posts.size()) {
+            throw new IllegalStateException("可用壁纸不足（成功 " + first.updated + "/" + posts.size() + "），保留旧封面");
+        }
+        return first.updated;
+    }
+
+    /** 单次刷新尝试。reset=true 时清空历史（当前封面仍排除）。成功则应用封面并写历史。 */
+    private RefreshOutcome tryRefresh(List<String> pool, List<BlogPost> posts, boolean reset) {
+        if (reset) {
+            coverHistoryMapper.delete(null);
+        }
+        List<String> usable = excludeUsed(pool, posts);
+        if (usable.size() < posts.size()) {
+            throw new IllegalStateException("去重后可用壁纸不足（" + usable.size() + "/" + posts.size() + "），保留旧封面");
+        }
+        Collections.shuffle(usable);
         // 本轮新封面先落到临时目录，全部成功后统一切换并清理上一轮文件
         Path tmpDir = coversDir().resolveSibling("covers-tmp-" + UUID.randomUUID().toString().substring(0, 8));
         List<String> localCovers = new ArrayList<>();
@@ -108,11 +125,8 @@ public class CoverRefreshService {
         try {
             for (BlogPost p : posts) {
                 String current = p.getCover();
-                for (int attempt = 0; attempt < 5; attempt++) {
-                    if (cursor >= pool.size()) {
-                        break; // 池子取尽，绝不回绕重复
-                    }
-                    String id = pool.get(cursor++);
+                while (cursor < usable.size()) {
+                    String id = usable.get(cursor++);
                     // 轮内严格去重：同一张壁纸本轮绝不分配两次
                     if (!assignedThisRound.add(id)) {
                         continue;
@@ -133,7 +147,9 @@ public class CoverRefreshService {
                 }
             }
             if (localCovers.size() < posts.size()) {
-                throw new IllegalStateException("可用封面不足（" + localCovers.size() + "/" + posts.size() + "），放弃本轮");
+                // 不抛异常：交由上层判断是否重置历史重试（首轮）/保留旧封面（重试轮）
+                log.warn("本轮可用封面不足（{}/{}）", localCovers.size(), posts.size());
+                return new RefreshOutcome(localCovers.size(), reset);
             }
         } finally {
             if (localCovers.size() < posts.size()) {
@@ -141,7 +157,7 @@ public class CoverRefreshService {
             }
         }
 
-        // 应用：每个文章按顺序取一个本地封面；清空旧 covers 目录；临时目录转正
+        // 应用：每篇文章按顺序取一个本地封面；清空旧 covers 目录；临时目录转正
         Path officialDir = coversDir();
         int updated = 0;
         List<BlogPost> published = postMapper.selectList(new LambdaQueryWrapper<BlogPost>()
@@ -166,7 +182,11 @@ public class CoverRefreshService {
         }
         // 记录本轮用掉的壁纸 id（保证全局不重复）
         recordHistory(usedIdsThisRound);
-        return updated;
+        return new RefreshOutcome(updated, reset);
+    }
+
+    /** 单轮刷新结果。 */
+    private record RefreshOutcome(int updated, boolean historyWasReset) {
     }
 
     /** 排除历史用过与当前在用的壁纸 id；若可用不足则清空历史重来。 */
