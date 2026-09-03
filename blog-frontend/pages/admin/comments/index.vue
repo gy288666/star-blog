@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElMessage, ElMessageBox } from 'element-plus'
 // 评论管理：筛选/审核/回复/删除
 definePageMeta({ layout: 'admin' })
 

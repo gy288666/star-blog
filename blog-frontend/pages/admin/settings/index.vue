@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
 // 站点设置 + 修改密码
 definePageMeta({ layout: 'admin' })
 

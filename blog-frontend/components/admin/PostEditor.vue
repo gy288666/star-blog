@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElMessage } from 'element-plus'
 // 文章/说说编辑器（新建与编辑共用）
 import type { Post } from '~/types'
 

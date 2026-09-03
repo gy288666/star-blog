@@ -1,10 +1,30 @@
 <script setup lang="ts">
+import { ElMessage, ElMessageBox } from 'element-plus'
 // 仪表盘：统计卡片 + 访问趋势图 + 热门文章
 definePageMeta({ layout: 'admin' })
 
 useHead({ title: '仪表盘' })
 
-const { get } = useApi()
+const { get, post } = useApi()
+
+// 随机更换全站文章封面（后端从哲风壁纸抓取，需下载图片，耗时约 1 分钟）
+const refreshingCovers = ref(false)
+const refreshCovers = async () => {
+  await ElMessageBox.confirm(
+    '将从哲风壁纸随机抓取一批新封面并应用到全部已发布文章，耗时约 1 分钟，确定继续？',
+    '更换随机封面',
+    { type: 'info', confirmButtonText: '开始更换', cancelButtonText: '取消' }
+  )
+  refreshingCovers.value = true
+  try {
+    const r = await post<{ updated: number }>('/api/admin/covers/refresh')
+    ElMessage.success(`已为 ${r?.updated ?? 0} 篇文章更换新封面，打开首页即可查看`)
+  } catch (e: any) {
+    ElMessage.error(e?.message || '更换失败')
+  } finally {
+    refreshingCovers.value = false
+  }
+}
 
 const summary = ref<Record<string, any>>({})
 const trend = ref<{ date: string; count: number }[]>([])
@@ -61,6 +81,16 @@ onUnmounted(() => { window.removeEventListener('resize', resizeChart); chart?.di
         </div>
       </div>
     </div>
+    <div class="quick-actions card">
+      <UiIcon name="image" :size="18" class="qa-icon" />
+      <div class="qa-text">
+        <b>随机更换文章封面</b>
+        <small>从哲风壁纸抓取一批新壁纸，应用到全部已发布文章（每周一也会自动更换）</small>
+      </div>
+      <el-button type="primary" :loading="refreshingCovers" @click="refreshCovers">
+        {{ refreshingCovers ? '正在抓取新封面…' : '立即换一批' }}
+      </el-button>
+    </div>
     <div class="dash-grid">
       <div class="card chart-card">
         <h3><UiIcon name="trend" :size="16" /> 近 14 天访问趋势</h3>
@@ -82,6 +112,17 @@ onUnmounted(() => { window.removeEventListener('resize', resizeChart); chart?.di
 </template>
 
 <style scoped>
+.quick-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.qa-icon { color: var(--primary); flex-shrink: 0; }
+.qa-text { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.qa-text b { font-size: 14px; }
+.qa-text small { color: var(--text-3); font-size: 12px; }
 .stat-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin-bottom: 20px; }
 .stat-card { display: flex; align-items: center; gap: 12px; padding: 18px; }
 .stat-icon { font-size: 30px; }

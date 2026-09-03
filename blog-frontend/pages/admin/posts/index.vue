@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElMessage, ElMessageBox } from 'element-plus'
 // 文章管理列表
 definePageMeta({ layout: 'admin' })
 
