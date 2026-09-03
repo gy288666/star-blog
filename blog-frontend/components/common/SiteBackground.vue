@@ -7,8 +7,8 @@
  */
 const { settings } = useSettings()
 
-const lightBg = computed(() => settings.value.pageBackgroundImage || '/bg/page-light.png')
-const darkBg = computed(() => settings.value.pageBackgroundImageDark || '/bg/page-dark.png')
+const lightBg = computed(() => settings.value.pageBackgroundImage || '/bg/page-light.webp')
+const darkBg = computed(() => settings.value.pageBackgroundImageDark || '/bg/page-dark.webp')
 const opacity = computed(() => {
   const v = Number(settings.value.pageBackgroundOpacity)
   return Number.isFinite(v) && v > 0 ? Math.min(v, 1) : 0.6

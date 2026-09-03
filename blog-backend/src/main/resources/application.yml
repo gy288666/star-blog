@@ -27,6 +27,10 @@ mybatis-plus:
       id-type: auto
 
 blog:
+  cover-refresh:
+    # 文章封面每周一 03:00 从哲风壁纸随机刷新（置 false 关闭）
+    enabled: ${COVER_REFRESH_ENABLED:true}
+    cron: "0 0 3 ? * MON"
   live2d:
     # 看板娘 Doro 对话的大模型代理（生产用环境变量覆盖）
     api-url: ${LIVE2D_API_URL:https://api.hcnsec.cn/}
