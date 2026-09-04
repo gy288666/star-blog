@@ -4,6 +4,8 @@
 
 **功能一览**：SSR 博客 + 管理后台 / 星空粒子背景 + 明暗两套壁纸 / Live2D 看板娘（可拖拽、点击冒气泡、接入大模型角色扮演对话）/ Markdown + KaTeX + 代码高亮 / 嵌套评论 + 验证码 / 说说点赞 / 全文搜索 / 归档时间轴 / 友链 / 密码保护文章 / sitemap / ECharts 仪表盘 / WordPress 一键迁移工具链
 
+> **访客互动**：任何人都能发说说（浏览器身份识别，仅发布人与管理员可删）；文章封面每周自动换新且全局不重复；关于页自带留言区与官方 QQ 群入口。
+
 ![技术栈](https://img.shields.io/badge/Spring%20Boot-3.3-6DB33F) ![Nuxt](https://img.shields.io/badge/Nuxt-3.x-00DC82) ![MySQL](https://img.shields.io/badge/MySQL-8-4479A1) ![Java](https://img.shields.io/badge/Java-21-007396)
 
 ## 项目结构
@@ -30,7 +32,11 @@ cd blog-frontend && npm install && npm run dev   # :3000，/api 自动代理到 
 
 **看板娘对话**需配置大模型（环境变量 `LIVE2D_API_URL` / `LIVE2D_API_KEY` / `LIVE2D_MODEL`），任何 OpenAI 兼容接口均可，key 只存后端不暴露给浏览器。
 
-**文章封面**默认每周一 03:00 从哲风壁纸（haowallpaper.com）随机刷新一轮；管理端可手动触发（`POST /api/admin/covers/refresh`）。不需要时设环境变量 `COVER_REFRESH_ENABLED=false` 关闭。背景壁纸（明暗两套）内置在前端 `blog-frontend/public/bg/`，部署即有。
+**文章封面**默认每周一 03:00 从哲风壁纸（haowallpaper.com）随机刷新一轮；管理后台仪表盘有「随机更换文章封面」一键按钮（也可调 `POST /api/admin/covers/refresh`）。不需要时设环境变量 `COVER_REFRESH_ENABLED=false` 关闭。
+
+封面去重保证：每次刷新排除**全部历史用过的壁纸**（`blog_cover_history` 表）与当前在用的封面，一篇文章之间、相邻几轮之间都不会出现重复图；候选里混有动态壁纸视频时会自动跳过，好图不足时自动重置历史重试一轮（重置后仍排除当前封面）。壁纸图片会下载到本站 `uploads/covers/` 存储展示，不受壁纸站防盗链影响。背景壁纸（明暗两套）内置在前端 `blog-frontend/public/bg/`，部署即有。
+
+**说说**：任意访客可在说说页发布（昵称可留空，浏览器身份识别，同 IP 60 秒限流），仅发布人本人与管理员可删除。
 
 ---
 
@@ -250,4 +256,4 @@ mysql -u<user> -p blog < deploy/sql/2026-09-02-static-bg-covers.sql
 ## 验证
 
 - 后端：`mvn test`（11 用例）+ `tools/api_smoke_test.py`（29 项接口冒烟）
-- 前端：`npm run build` 零错误；写作→发布→展示全流程、评论、说说、看板娘对话均已实测
+- 前端：`npm run build` 零错误；写作→发布→展示、评论、说说游客发布/删除、封面随机不重复、看板娘对话均已实测
