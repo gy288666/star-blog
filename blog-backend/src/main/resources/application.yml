@@ -36,8 +36,8 @@ blog:
     api-url: ${LIVE2D_API_URL:https://api.hcnsec.cn/}
     api-key: ${LIVE2D_API_KEY:}  # 本地开发写入环境变量或 application-local.yml（不入库）
     model: ${LIVE2D_MODEL:auto}
-  # 生产环境必须通过 JWT_SECRET 环境变量覆盖
-  jwt-secret: ${JWT_SECRET:dev-only-secret-change-me-please-0123456789}
+  # 生产环境必须通过 JWT_SECRET 环境变量覆盖（prod profile 未设置时直接启动失败，不回退默认值）
+  jwt-secret: ${JWT_SECRET:}
   upload-dir: ${UPLOAD_DIR:./uploads}
   site-url: ${SITE_URL:https://blog.20260006.xyz}
   # token 有效期（毫秒），默认 7 天

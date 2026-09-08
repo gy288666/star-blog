@@ -8,3 +8,7 @@ spring:
 logging:
   level:
     com.blog.mapper: warn
+
+blog:
+  # 生产必须显式提供 JWT_SECRET；未设置时占位符无法解析，应用启动失败（不回退到 dev 默认密钥）
+  jwt-secret: ${JWT_SECRET}

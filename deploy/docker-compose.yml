@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: blog
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?请在运行前设置 DB_PASSWORD}
       TZ: Asia/Shanghai
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     volumes:
@@ -28,7 +28,7 @@ services:
       DB_NAME: blog
       DB_USER: root
       DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
+      JWT_SECRET: ${JWT_SECRET:?请在运行前设置 JWT_SECRET}
       UPLOAD_DIR: /data/uploads
       SITE_URL: ${SITE_URL}
       TZ: Asia/Shanghai
